@@ -53,7 +53,7 @@ export function MintingInterface({
     return (
         <div className="w-full max-w-md mx-auto p-6 rounded-lg bg-white/5 backdrop-blur-sm">
             <div className="mb-6">
-                <h3 className="text-xl font-bold mb-2">Mint Your NFT</h3>
+                <h3 className="text-xl text-white font-bold mb-2">Mint Your NFT</h3>
                 <p className="text-sm text-gray-400">
                     Price per NFT: {mintPrice} ETH
                 </p>
@@ -70,7 +70,7 @@ export function MintingInterface({
                     >
                         -
                     </button>
-                    <span className="w-8 text-center">{quantity}</span>
+                    <span className="w-8 text-white text-center">{quantity}</span>
                     <button
                         onClick={() => setQuantity(Math.min(maxPerTransaction, quantity + 1))}
                         className="px-3 py-1 rounded-lg bg-gray-200 dark:bg-gray-800"

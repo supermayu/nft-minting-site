@@ -2,8 +2,8 @@ import { Layout } from './components/Layout';
 import { NFTDisplay } from './components/NFTDisplay';
 import { MintingInterface } from './components/MintingInterface';
 
-// Example NFT metadata - replace with your actual metadata
-const exampleNFT = {
+
+/*const exampleNFT = {
   name: "Example NFT Collection",
   description: "A unique collection of digital art pieces",
   image: "/path-to-your-nft-image.jpg",
@@ -11,10 +11,10 @@ const exampleNFT = {
     { trait_type: "Rarity", value: "Legendary" },
     { trait_type: "Type", value: "Digital Art" },
   ],
-};
+};*/
 
-const CONTRACT_ADDRESS = '0x...' as `0x${string}`; // Replace with your contract address
-const MINT_PRICE = "0.08"; // ETH
+const CONTRACT_ADDRESS = '0xD4538962b4166516f54fc13ccA1A1c3466ab18Ef' as `0x${string}`;
+const MINT_PRICE = "0.01"; // ETH
 const MAX_SUPPLY = 10000;
 
 export default function Home() {
@@ -25,8 +25,12 @@ export default function Home() {
       </h1>
 
       <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
-        <NFTDisplay 
-          metadata={exampleNFT} 
+        <NFTDisplay
+          contract={{
+            address: CONTRACT_ADDRESS,
+            chainId: 11155111, // Sepolia Testnet
+          }}
+          tokenId= "0"
           price={MINT_PRICE}
           currency="ETH"
         />
