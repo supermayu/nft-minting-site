@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseEther, formatEther } from 'viem';
+import { parseEther } from 'viem';
 
 interface MintingInterfaceProps {
     maxSupply: number;
@@ -12,14 +12,13 @@ interface MintingInterfaceProps {
 }
 
 export function MintingInterface({
-    maxSupply,
     mintPrice,
     contractAddress,
     maxPerTransaction = 5
 }: MintingInterfaceProps) {
     const [quantity, setQuantity] = useState(1);
     const [totalPrice, setTotalPrice] = useState(mintPrice);
-    const { isConnected, address } = useAccount();
+    const { isConnected} = useAccount();
 
     const { writeContract, data: hash } = useWriteContract();
 

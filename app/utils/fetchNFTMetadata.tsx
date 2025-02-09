@@ -5,23 +5,12 @@ export async function fetchNFTMetadata(
   tokenId?: string
 ): Promise<NFTMetadata> {
   try {
-    // Token URIを取得するためのABI
-    const minABI = [
-      {
-        inputs: [{ name: 'tokenId', type: 'uint256' }],
-        name: 'tokenURI',
-        outputs: [{ name: '', type: 'string' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-    ];
 
     const ipfsHash = "QmWQqy2dADTWavWm4MRwXSWnDFq9eWxrwfiB5DN4geZseR";
     // IPFSゲートウェイを使用してメタデータを取得
     const gatewayUrl = `https://ipfs.io/ipfs/${ipfsHash}/${tokenId}`;
     
     const response = await fetch(gatewayUrl);
-    console.log(response);
     if (!response.ok) {
       throw new Error('Failed to fetch NFT metadata');
     }

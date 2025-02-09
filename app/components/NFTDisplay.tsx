@@ -15,7 +15,6 @@ interface NFTDisplayProps {
 export function NFTDisplay({ contract, tokenId, price, currency = 'ETH' }: NFTDisplayProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [metadata, setMetadata] = useState<NFTMetadata | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
