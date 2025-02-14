@@ -2,57 +2,44 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { NFTMetadata, NFTContract } from '../types/nft';
-import { fetchNFTMetadata } from '../utils/fetchNFTMetadata';
+import { useNFTMetadata, useTokenURI } from '../hooks/useNFTData';
+import { NFTState } from '../types/nft';
+
+const CONTRACT_ADDRESS = '0xD4538962b4166516f54fc13ccA1A1c3466ab18Ef';
 
 interface NFTDisplayProps {
-  contract: NFTContract;
-  tokenId?: string;
+  tokenId: string;
   price: string;
   currency?: string;
 }
 
-export function NFTDisplay({ contract, tokenId, price, currency = 'ETH' }: NFTDisplayProps) {
+export function NFTDisplay({ tokenId, price, currency = 'ETH' }: NFTDisplayProps) {
+  console.log("tokenId: ", tokenId);
   const [isLoading, setIsLoading] = useState(true);
-  const [metadata, setMetadata] = useState<NFTMetadata | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [nftState, setNftState] = useState<NFTState>({
+    metadata: null,
+    isLoading: false,
+    error: null
+  });
+  const { uri, isLoading: isUriLoading } = useTokenURI(CONTRACT_ADDRESS, tokenId);
+  const nftMetadata = useNFTMetadata(tokenId, uri);
 
   useEffect(() => {
-    let isMounted = true;
-    async function loadMetadata() {
-      try {
-        setIsLoading(true);
-        const data = await fetchNFTMetadata(contract, tokenId);
-        if (isMounted) {
-          setMetadata(data);
-          setError(null);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError('Failed to load NFT metadata');
-          console.error(err);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
+    if (!isUriLoading && nftMetadata) {
+      setNftState(nftMetadata);
+      setIsLoading(false);
     }
+  }, [nftMetadata, isUriLoading]);
 
-    loadMetadata();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [contract, tokenId]);
-
-  if (isLoading) {
+  if (isLoading || isUriLoading) {
     return <div className="animate-pulse">Loading...</div>;
   }
 
-  if (error || !metadata) {
-    return <div className="text-red-500">{error || 'Failed to load NFT'}</div>;
+  if (nftState.error || !nftState.metadata) {
+    return <div className="text-red-500">{nftState.error || 'Failed to load NFT'}</div>;
   }
+
+  const { metadata } = nftState;
 
   // IPFSのURLをHTTPSに変換する関数
   const convertIPFStoHTTPS = (ipfsUrl: string) => {

@@ -4,6 +4,7 @@ import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { mainnet } from 'wagmi/chains';
+import { sepolia } from 'wagmi/chains';
 import '@rainbow-me/rainbowkit/styles.css';
 
 if (!process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID) {
@@ -13,7 +14,7 @@ if (!process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID) {
   const config = getDefaultConfig({
     appName: 'NFT Minting Site',
     projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
-    chains: [mainnet],
+    chains: [sepolia],
   });
 
 const queryClient = new QueryClient();
