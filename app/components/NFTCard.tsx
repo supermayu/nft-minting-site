@@ -6,7 +6,7 @@ import { useNFTMetadata, useTokenURI } from '../hooks/useNFTData';
 import { NFTState } from '../types/nft';
 import { useCallback } from 'react';
 
-const MINT_PRICE = "0.01"; // ETH
+const MINT_PRICE = "0.00001"; // ETH
 const CONTRACT_ADDRESS = '0xD4538962b4166516f54fc13ccA1A1c3466ab18Ef';
 
 const IPFS_GATEWAYS = [
@@ -24,7 +24,6 @@ export function NFTCard({ tokenId }: NFTCardProps) {
   const [currentGatewayIndex, setCurrentGatewayIndex] = useState(0);
   const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
-
   const [nftState, setNftState] = useState<NFTState>({
     metadata: null,
     isLoading: false,
@@ -42,37 +41,30 @@ export function NFTCard({ tokenId }: NFTCardProps) {
   }, []);
 
   useEffect(() => {
-    if (!isUriLoading && nftMetadata) {
+    if (!isUriLoading && nftMetadata && !nftState.metadata) { // nftState.metadataのチェックを追加
       setNftState(nftMetadata);
       setIsLoading(false);
 
       if (nftMetadata.metadata?.image) {
         const newUrl = convertIPFStoHTTPS(nftMetadata.metadata.image, currentGatewayIndex);
         setCurrentImageUrl(newUrl);
-        console.log('Setting initial image URL:', newUrl);
       }
     }
-  }, [nftMetadata, isUriLoading, convertIPFStoHTTPS, currentGatewayIndex]);
+  }, [isUriLoading, nftMetadata, convertIPFStoHTTPS, currentGatewayIndex, nftState.metadata]);
 
-  const handleImageError = useCallback(() => {
-    console.log('Image error occurred with gateway index:', currentGatewayIndex);
-
-    if (currentGatewayIndex < IPFS_GATEWAYS.length - 1) {
+  useEffect(() => {
+    if (imageError && currentGatewayIndex < IPFS_GATEWAYS.length - 1 && nftState.metadata?.image) {
       const nextGatewayIndex = currentGatewayIndex + 1;
       setCurrentGatewayIndex(nextGatewayIndex);
-
-      if (nftState.metadata?.image) {
-        const newUrl = convertIPFStoHTTPS(nftState.metadata.image, nextGatewayIndex);
-        setCurrentImageUrl(newUrl);
-        console.log('Trying next gateway URL:', newUrl);
-      }
-
+      const newUrl = convertIPFStoHTTPS(nftState.metadata.image, nextGatewayIndex);
+      setCurrentImageUrl(newUrl);
       setImageError(false);
-    } else {
-      console.log('All gateways failed');
-      setImageError(true);
     }
-  }, [currentGatewayIndex, nftState.metadata?.image, convertIPFStoHTTPS]);
+  }, [imageError, currentGatewayIndex, nftState.metadata?.image, convertIPFStoHTTPS]);
+
+  const handleImageError = useCallback(() => {
+    setImageError(true);
+  }, []); // 依存配列を空にする
 
   if (isLoading || isUriLoading) {
     return <div className="animate-pulse">Loading...</div>;
