@@ -14,7 +14,7 @@ export async function fetchWithTimeout(url: string, timeout = 30000): Promise<Re
     }
 }
 
-export function isValidMetadata(metadata: any): metadata is NFTMetadata {
+export function isValidMetadata(metadata: NFTMetadata): metadata is NFTMetadata {
     return (
         typeof metadata === 'object' &&
         metadata !== null &&
