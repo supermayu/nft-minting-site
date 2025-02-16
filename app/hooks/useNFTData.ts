@@ -4,14 +4,12 @@ import { useState, useEffect } from 'react';
 import { NFTMetadata } from '../types/nft';
 import { fetchWithTimeout, isValidMetadata } from '../utils/fetchNFTMetadata';
 
-const CONTRACT_ADDRESS = '0xD4538962b4166516f54fc13ccA1A1c3466ab18Ef';
-
 export function useTokenURI(
-    contractAddress: `0x${string}`,
     tokenId: string,
 ) {
+
     const result = useReadContract({
-        address: contractAddress,
+        address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
         abi: [
             {
                 "inputs": [
@@ -21,7 +19,7 @@ export function useTokenURI(
                         "type": "uint256"
                     }
                 ],
-                "name": "tokenURI",
+                "name": "uri",
                 "outputs": [
                     {
                         "internalType": "string",
@@ -33,13 +31,11 @@ export function useTokenURI(
                 "type": "function"
             }
         ],
-        functionName: 'tokenURI',
+        functionName: 'uri',
         args: [BigInt(tokenId)],
     })
 
     const { data, isError, error, isLoading } = result;
-    console.log("data:", data);
-
     // Loading state
     if (isLoading) {
         return {
@@ -77,20 +73,12 @@ export function useTokenURI(
 }
 
 export function useNFTMetadata(tokenId: string, uri: string) {
-    //const { uri, isLoading: uriLoading, error: uriError } = useTokenURI(CONTRACT_ADDRESS, tokenId);
     const [metadata, setMetadata] = useState<NFTMetadata | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         let isMounted = true;
-
-        // URIのエラーがある場合は早期リターン
-        /* if (uriError) {
-             setError(uriError);
-             setIsLoading(false);
-             return;
-         }*/
 
         async function fetchMetadata() {
             if (!uri) {
@@ -138,13 +126,11 @@ export function useNFTMetadata(tokenId: string, uri: string) {
         return () => {
             isMounted = false;
         };
-    }, [uri, tokenId/*, uriError*/]);
-
-    console.log("metadata:", metadata);
+    }, [uri, tokenId]);
 
     return {
         metadata,
-        isLoading: isLoading /*|| uriLoading*/,
+        isLoading: isLoading,
         error
     };
 }

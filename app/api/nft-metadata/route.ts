@@ -8,8 +8,6 @@ export async function GET(request: Request) {
 
     // IPFS Gateway URLの構築
     const gatewayUrl = `https://ipfs.io/ipfs/${ipfsHash}/${tokenId}`;
-    
-    console.log('Fetching from:', gatewayUrl); // デバッグ用
 
     const response = await fetch(gatewayUrl, {
       headers: {

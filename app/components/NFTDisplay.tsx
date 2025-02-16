@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useNFTMetadata, useTokenURI } from '../hooks/useNFTData';
 
-const CONTRACT_ADDRESS = '0xD4538962b4166516f54fc13ccA1A1c3466ab18Ef';
-
 interface NFTDisplayProps {
   tokenId: string;
   price: string;
@@ -14,7 +12,7 @@ interface NFTDisplayProps {
 
 export function NFTDisplay({ tokenId, price, currency = 'ETH' }: NFTDisplayProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const { uri, isLoading: isUriLoading } = useTokenURI(CONTRACT_ADDRESS, tokenId);
+  const { uri, isLoading: isUriLoading } = useTokenURI(tokenId);
   const { metadata, isLoading: isMetadataLoading, error } = useNFTMetadata(tokenId, uri);
 
   useEffect(() => {

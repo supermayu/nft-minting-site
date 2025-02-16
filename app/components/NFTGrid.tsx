@@ -3,10 +3,8 @@
 import Link from 'next/link';
 import { NFTCard } from './NFTCard';
 
-const MAX_SUPPLY = 12;
-
 export function NFTGrid() {
-  const totalNFTs = MAX_SUPPLY;
+  const totalNFTs = 2;
   const nftArray = Array.from({ length: totalNFTs }, (_, i) => i);
 
   return (

@@ -3,11 +3,9 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useNFTMetadata, useTokenURI } from '../hooks/useNFTData';
-import { NFTState } from '../types/nft';
 import { useCallback } from 'react';
 
-const MINT_PRICE = "0.00001"; // ETH
-const CONTRACT_ADDRESS = '0xD4538962b4166516f54fc13ccA1A1c3466ab18Ef';
+const MINT_PRICE = "0"; // ETH
 
 const IPFS_GATEWAYS = [
   'https://ipfs.io/ipfs/',
@@ -24,13 +22,8 @@ export function NFTCard({ tokenId }: NFTCardProps) {
   const [currentGatewayIndex, setCurrentGatewayIndex] = useState(0);
   const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
-  const [nftState, setNftState] = useState<NFTState>({
-    metadata: null,
-    isLoading: false,
-    error: null
-  });
-  const { uri, isLoading: isUriLoading } = useTokenURI(CONTRACT_ADDRESS, tokenId)
-  const nftMetadata = useNFTMetadata(tokenId, uri);
+  const { uri, isLoading: isUriLoading } = useTokenURI(tokenId);
+  const { metadata, isLoading: isMetadataLoading, error } = useNFTMetadata(tokenId, uri);
 
   const convertIPFStoHTTPS = useCallback((ipfsUrl: string, gatewayIndex: number) => {
     if (ipfsUrl.startsWith('ipfs://')) {
@@ -41,52 +34,47 @@ export function NFTCard({ tokenId }: NFTCardProps) {
   }, []);
 
   useEffect(() => {
-    if (!isUriLoading && nftMetadata && !nftState.metadata) { // nftState.metadataのチェックを追加
-      setNftState(nftMetadata);
+    if (!isUriLoading && !isMetadataLoading && metadata?.image) {
+      const newUrl = convertIPFStoHTTPS(metadata.image, currentGatewayIndex);
+      setCurrentImageUrl(newUrl);
       setIsLoading(false);
-
-      if (nftMetadata.metadata?.image) {
-        const newUrl = convertIPFStoHTTPS(nftMetadata.metadata.image, currentGatewayIndex);
-        setCurrentImageUrl(newUrl);
-      }
     }
-  }, [isUriLoading, nftMetadata, convertIPFStoHTTPS, currentGatewayIndex, nftState.metadata]);
+  }, [isUriLoading, isMetadataLoading, metadata, convertIPFStoHTTPS, currentGatewayIndex]);
 
   useEffect(() => {
-    if (imageError && currentGatewayIndex < IPFS_GATEWAYS.length - 1 && nftState.metadata?.image) {
+    if (imageError && currentGatewayIndex < IPFS_GATEWAYS.length - 1 && metadata?.image) {
       const nextGatewayIndex = currentGatewayIndex + 1;
       setCurrentGatewayIndex(nextGatewayIndex);
-      const newUrl = convertIPFStoHTTPS(nftState.metadata.image, nextGatewayIndex);
+      const newUrl = convertIPFStoHTTPS(metadata.image, nextGatewayIndex);
       setCurrentImageUrl(newUrl);
       setImageError(false);
     }
-  }, [imageError, currentGatewayIndex, nftState.metadata?.image, convertIPFStoHTTPS]);
+  }, [imageError, currentGatewayIndex, metadata?.image, convertIPFStoHTTPS]);
 
   const handleImageError = useCallback(() => {
     setImageError(true);
-  }, []); // 依存配列を空にする
+  }, []);
 
-  if (isLoading || isUriLoading) {
+  if (isLoading || isUriLoading || isMetadataLoading) {
     return <div className="animate-pulse">Loading...</div>;
   }
 
-  if (nftState.error || !nftState.metadata) {
-    return <div className="text-red-500">{nftState.error || 'Failed to load NFT'}</div>;
+  if (error || !metadata) {
+    return <div className="text-red-500">{error || 'Failed to load NFT'}</div>;
   }
-
-  const { metadata } = nftState;
 
   return (
     <div className="rounded-lg overflow-hidden bg-gray-800 hover:shadow-xl transition-shadow">
       <div className="relative w-full" style={{ paddingTop: '66.67%' }}>
         <Image
-          key={currentImageUrl} // URLが変更されたときに強制的に再レンダリング
+          key={currentImageUrl}
           src={currentImageUrl}
           alt={metadata.name}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className={`object-contain transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'
-            }`}
+          className={`object-contain transition-opacity duration-300 ${
+            isLoading ? 'opacity-0' : 'opacity-100'
+          }`}
           onError={handleImageError}
           onLoadingComplete={() => setIsLoading(false)}
         />
