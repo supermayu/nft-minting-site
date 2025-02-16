@@ -5,13 +5,18 @@ import * as React from 'react'
 
 const MINT_PRICE = "0";
 
-interface Params {
+type PageParams = {
   id: string;
 }
 
-export default async function NFTPage({ params }: { params: Params }) {
-  const { id } = await params;
-
+export default async function NFTPage({
+  params,
+}: {
+  params: Promise<PageParams>
+}) {
+  const resolvedParams = await params;
+  const { id } = resolvedParams;
+  
   return (
     <Layout>
       <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
